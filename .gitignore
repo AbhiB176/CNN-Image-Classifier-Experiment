@@ -1,0 +1,14 @@
+venv/
+plots/
+*.pth
+*.pt
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.pdf
+
+# Claude internal files
+NARRATIVE.md
+AI_USAGE.md
+.claude/
+MEMORY.md
