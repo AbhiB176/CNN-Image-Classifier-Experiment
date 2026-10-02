@@ -7,8 +7,10 @@ __pycache__/
 .ipynb_checkpoints/
 *.pdf
 
-# Claude internal files
+# Working/internal files — not for submission repo
 NARRATIVE.md
 AI_USAGE.md
+EXPERIMENTS.md
+ITCS_6169_8169_Assignment1_2026_Starter.ipynb
 .claude/
 MEMORY.md
