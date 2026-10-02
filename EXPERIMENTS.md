@@ -124,6 +124,31 @@ Test set is not evaluated until the final model is selected.
 
 **Conclusion:** Confirmed that partial fine-tuning breaks the frozen backbone ceiling. Layer4 adapted quickly — the pretrained weights were already close to useful for scenes, needing only small adjustments. Augmentation and cosine scheduling helped here (unlike on frozen backbone) because the backbone could actually respond to varied inputs. Train loss reached near-zero (0.012) with augmentation, indicating layer4 thoroughly adapted to the training distribution.
 
+---
+
+## Experiment 5: ConvNeXt-Tiny Partial Fine-Tune (last stage)
+
+**Hypothesis:** ConvNeXt-Tiny's stronger ImageNet features (~82% top-1 vs ResNet18's ~70%) should raise the ceiling with the same partial fine-tuning strategy.
+
+**Changes from Exp 4:** Backbone swapped to ConvNeXt-Tiny. Last two stages (`features[6]`, `features[7]`) + classifier head trainable. 768-dim head output (vs ResNet18's 512-dim). Everything else identical.
+
+**Config:**
+- Backbone: ConvNeXt-Tiny (pretrained ImageNet-1K)
+- Optimizer: Adam, lr=1e-4
+- Scheduler: CosineAnnealingLR, T_max=30
+- Epochs: 30, augmented train data
+
+**Result:**
+- Best val accuracy: 96.04%  (+1.67 points over Exp 4, +5.83 over Exp 1)
+- Final epoch: train loss 0.0112, val loss 0.1341, val acc 0.9604
+- Both curves plateaued very early (~epoch 2.5), slight continued growth after
+- Max = final (0.9604) — no late-epoch regression, best checkpoint at the end
+- Val loss gap much tighter than Exp 4 (0.1341 vs 0.2144) despite similar train loss
+
+**Plot:** `plots/exp5_convnext_partial_finetune.png`
+
+**Conclusion:** ConvNeXt-Tiny's richer features produce a meaningfully higher ceiling. Plateauing at epoch 2.5 indicates the pretrained features were already highly scene-relevant — less adaptation needed than ResNet18's layer4. No regression at end of training confirms cosine decay + checkpoint saving worked well together. Val/train gap is tighter than Exp 4, suggesting ConvNeXt generalizes better with less overfitting on this task.
+
 <!-- Add new experiments below following the same template -->
 
 ---
