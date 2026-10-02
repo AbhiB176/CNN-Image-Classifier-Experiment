@@ -67,12 +67,14 @@ Test set is not evaluated until the final model is selected.
 - Epochs: 20, batch size: 64
 
 **Result:**
-- Best val accuracy: __%
-- Loss curve: *(fill after run)*
+- Best val accuracy: 89.17% (vs 90.21% in Exp 1 — slight regression)
+- Final epoch: train loss 0.2398, val loss 0.3348, val acc 0.8833
+- Val loss diverges from train later (~epoch 8 vs ~epoch 3 in Exp 1)
+- Train loss higher than Exp 1 (expected — augmentation makes training harder)
 
 **Plot:** `plots/exp2_resnet18_aug.png`
 
-**Conclusion:** *(fill after run)*
+**Conclusion:** Augmentation slightly hurt on a frozen backbone. The head sees harder, more varied inputs (random crops, color shifts) but the backbone can't adapt its feature extraction to match — it always uses the same fixed weights. Augmented views produce noisier, less consistent 512-dim feature vectors, making the linear classification problem harder without giving the model a way to compensate.
 
 ---
 
@@ -89,12 +91,38 @@ Test set is not evaluated until the final model is selected.
 - Epochs: 20, batch size: 64
 
 **Result:**
-- Best val accuracy: __%
-- Loss curve: *(fill after run)*
+- Best val accuracy: 89.58% (vs 90.21% in Exp 1 — slight regression)
+- Final epoch: train loss 0.2624, val loss 0.3562, val acc 0.8917
+- Val loss diverges from train earlier (~epoch 6 vs ~epoch 3 in Exp 1)
+- Train loss higher than Exp 1 despite same data — cosine decay reduced LR before full convergence
 
 **Plot:** `plots/exp3_resnet18_cosine.png`
 
-**Conclusion:** *(fill after run)*
+**Conclusion:** Cosine scheduling slightly hurt on a frozen backbone. The linear classification problem the head solves is simple and fast-converging — Adam already finds a good solution without scheduling help. Decaying the LR constrains the optimizer before it reaches the optimum, slightly underfitting. Scheduling is more valuable when the loss landscape is complex (i.e., when fine-tuning a full network).
+
+---
+
+## Experiment 4: ResNet18 Partial Fine-Tune (layer4 + head)
+
+**Hypothesis:** Unfreezing layer4 lets the highest-level features adapt toward scene discrimination. Augmentation and cosine scheduling should now help since the backbone can respond to varied inputs.
+
+**Changes from Exp 1:** layer4 + head trainable (~2.6M params), layers 1–3 frozen. lr=1e-4 (all trainable params). Augmented train transform. CosineAnnealingLR. 30 epochs.
+
+**Config:**
+- Backbone: ResNet18, layer4 + fc trainable (23.2% of params)
+- Optimizer: Adam, lr=1e-4
+- Scheduler: CosineAnnealingLR, T_max=30
+- Epochs: 30, batch size: 64, augmented train data
+
+**Result:**
+- Best val accuracy: 94.37%  (+4.16 points over Exp 1)
+- Final epoch: train loss 0.0120, val loss 0.2144, val acc 0.9417
+- Val loss higher than train from epoch 1 — normal with pretrained weights (model arrives already good)
+- Val accuracy plateaus quickly (~epoch 8–10), consistent with fast layer4 convergence + cosine decay reducing LR early
+
+**Plot:** `plots/exp4_resnet18_partial_finetune.png`
+
+**Conclusion:** Confirmed that partial fine-tuning breaks the frozen backbone ceiling. Layer4 adapted quickly — the pretrained weights were already close to useful for scenes, needing only small adjustments. Augmentation and cosine scheduling helped here (unlike on frozen backbone) because the backbone could actually respond to varied inputs. Train loss reached near-zero (0.012) with augmentation, indicating layer4 thoroughly adapted to the training distribution.
 
 <!-- Add new experiments below following the same template -->
 
