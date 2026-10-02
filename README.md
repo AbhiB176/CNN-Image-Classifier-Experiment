@@ -1,6 +1,15 @@
 # CNN Image Classifier — ITCS 6169/8169 Assignment 1
 
-16-class scene recognition using a CNN trained on 2,400 images.
+16-class scene recognition using transfer learning and partial fine-tuning on 2,400 training images.
+
+**Final result:** ConvNeXt-Tiny partial fine-tune · 96.04% val · 96.50% test
+
+## Repository contents
+
+| File | Contents |
+|---|---|
+| `submission.ipynb` | Full experiment notebook — setup, Experiments 0–6, final test evaluation, ablation summary |
+| `requirements.txt` | Python dependencies |
 
 ## Setup
 
@@ -27,22 +36,26 @@ data/
     ...
 ```
 
-## Running
+Update `PROJECT_ROOT` in the first setup cell of `submission.ipynb` to point to your directory.
 
-Open `ITCS_6169_8169_Assignment1_2026_Starter.ipynb` and run cells top to bottom.
-Each experiment section is self-contained. The `plot_history()` utility is defined once and reused after every training run.
+## Reproducing results
 
-## Documentation
+Open `submission.ipynb` and run cells top to bottom. All experiments are defined sequentially —
+transforms and data loaders are created once at the top, then each experiment uses them directly.
+Expected runtime on an RTX 4060: ~15 min for the full run (Exp 4 and 5 dominate at ~8 min each).
 
-| File | Contents |
-|---|---|
-| `EXPERIMENTS.md` | Structured log of every experiment — hypothesis, config, results |
-| `NARRATIVE.md` | Decision rationale, failure analysis, project arc |
-| `AI_USAGE.md` | Human-AI collaboration record (assignment requirement) |
+## Experiment summary
+
+| Configuration | Val Acc. |
+|---|---:|
+| Baseline CNN (TNet, from scratch) | 49.79% |
+| + Pretrained backbone (ResNet18 frozen) | 90.21% |
+| + Partial fine-tune + training strategy | 94.37% |
+| + ConvNeXt-Tiny backbone (final model) | **96.04%** |
+| Final model — test set | **96.50%** |
 
 ## Environment
 
-- Python 3.x
-- PyTorch 2.x + CUDA 12.x
-- NVIDIA GeForce RTX 4060
+- Python 3.11 · PyTorch 2.6 + CUDA 12.4
+- NVIDIA GeForce RTX 4060 Laptop GPU
 - SEED = 0
