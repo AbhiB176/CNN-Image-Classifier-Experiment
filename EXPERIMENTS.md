@@ -153,6 +153,31 @@ Test set is not evaluated until the final model is selected.
 
 ---
 
+## Experiment 6: ConvNeXt-Tiny + Deeper Head
+
+**Hypothesis:** A two-layer non-linear head with dropout adds representational capacity and regularization over the simple linear head, potentially separating hard boundary cases between similar scene classes.
+
+**Changes from Exp 5:** Head replaced: `Linear(768, 16)` → `Dropout(0.3) → Linear(768, 256) → GELU → Dropout(0.2) → Linear(256, 16)`. Backbone partial fine-tune and all other settings identical.
+
+**Config:**
+- Backbone: ConvNeXt-Tiny (pretrained ImageNet-1K), features[6]+features[7]+head trainable
+- Head: Dropout(0.3) → Linear(768→256) → GELU → Dropout(0.2) → Linear(256→16)
+- Optimizer: Adam, lr=1e-4
+- Scheduler: CosineAnnealingLR, T_max=30
+- Epochs: 30, augmented train data
+
+**Result:**
+- Best val accuracy: 95.42%  (-0.62 points vs Exp 5)
+- Final epoch: train loss 0.0140, val loss 0.1730, val acc 0.9479
+- Loss curves: similar shape to Exp 5 — early plateau, smooth descent, no late-epoch regression
+- Val loss higher than Exp 5 (0.1730 vs 0.1341) despite identical backbone; train loss also slightly higher (0.0140 vs 0.0112)
+
+**Plot:** `plots/exp6_convnext_deeper_head.png`
+
+**Conclusion:** Deeper head hurt. The added dropout regularized aggressively enough to slightly underfit the 256-dim intermediate layer, and the extra non-linearity provided no benefit over a direct linear map from 768-dim ConvNeXt features. ConvNeXt's pretrained features are already linearly separable for this task — head complexity is not the bottleneck. Exp 5 (single linear head) remains the best model at 96.04%.
+
+---
+
 ## Final Ablation Summary
 
 > Filled in at the end of the project.
