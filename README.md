@@ -58,7 +58,7 @@ Expected runtime on an RTX 4060: ~15 min for the full run (Exp 4 and 5 dominate 
 
 The final model weights (`convnext_final.pth`) are too large for GitHub. Download from:
 
-> **[convnext_final.pth — Google Drive](LINK_HERE)**
+> **[convnext_final.pth — Google Drive](https://drive.google.com/file/d/1oLRoE5wMENmirHt-47itJTAfirLDxHM_/view?usp=sharing)**
 
 To load:
 ```python
