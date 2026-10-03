@@ -54,6 +54,23 @@ Expected runtime on an RTX 4060: ~15 min for the full run (Exp 4 and 5 dominate 
 | + ConvNeXt-Tiny backbone (final model) | **96.04%** |
 | Final model — test set | **96.50%** |
 
+## Model checkpoint
+
+The final model weights (`convnext_final.pth`) are too large for GitHub. Download from:
+
+> **[convnext_final.pth — Google Drive](LINK_HERE)**
+
+To load:
+```python
+import torch, torch.nn as nn
+from torchvision.models import convnext_tiny
+
+model = convnext_tiny(weights=None)
+model.classifier[2] = nn.Linear(768, 16)
+model.load_state_dict(torch.load('convnext_final.pth', map_location='cpu'))
+model.eval()
+```
+
 ## Environment
 
 - Python 3.11 · PyTorch 2.6 + CUDA 12.4
